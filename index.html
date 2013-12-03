@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
+
+    <title>Tube Traffic by Station</title>
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <!-- ><link href="starter-template.css" rel="stylesheet"> -->
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../docs-assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNnH97cPw1mTwvKJykn-AxePQpjWSxfbI&sensor=false">
+    </script>
+	
+	<script type="text/javascript"
+	  src="http://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=false"></script>
+	  
+	  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	  
+
+
+  </head>
+  <body style="padding-top: 70px">
+	
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">London Tube Traffic by Station</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="starter-template">
+        <p class="lead">This map shows relative annual traffic through all London Tube stations</p>
+		   <div id="map-canvas" style="height: 700px; width: 100%"/>
+		   <div id="result">blarg</div>
+      </div>
+
+    </div><!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+  	  var layer;
+	  
+        var mapOptions = {
+          center: new google.maps.LatLng(51.509, -0.126),
+          zoom: 12
+        };
+  
+        var map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);	  
+
+		  
+        function initialize() {
+
+
+
+			
+  		    layer = new google.maps.FusionTablesLayer({
+  		      query: {
+  		        select: 'Geolocation',
+  		        from: '1tKaKlXL7xJthIR5_jpcLQQ6AwxhNdE13uWOP_fA'
+  		      }
+  		    });
+  			//alert(layer.query.select);
+  		    //layer.setMap(map);
+			
+			getData();
+			
+        }
+	  
+  	  function dataHandler(response) {
+  	      console.log(response);
+  	      //do something with the data using response.rows
+
+  	      for (var i = 0; i < response.rows.length; i++) {
+  			  var myRadius = response.rows[i][1] * 10;
+  	 	      var populationOptions = {
+  	 	        strokeColor: '#000000',
+  	 	        strokeOpacity: 0.45,
+  	 	        strokeWeight: 2,
+  	 	        fillColor: '#FF55FF',
+  	 	        fillOpacity: 0.25,
+  	 	        map: map,
+  	 	        center: new google.maps.LatLng(response.rows[i][2], response.rows[i][3]),
+  	 	        radius: myRadius
+  	 	      };
+  	 	      // Add the circle for this city to the map.
+  	 	      cityCircle = new google.maps.Circle(populationOptions);
+			  
+
+  	      }
+		  
+  	  }
+
+  	  function getData() {
+  	      // Builds a Fusion Tables SQL query and hands the result to  dataHandler
+
+  	      var queryUrlHead = 'https://www.googleapis.com/fusiontables/v1/query?sql=';
+  	      var queryUrlTail = '&key=AIzaSyDNnH97cPw1mTwvKJykn-AxePQpjWSxfbI';
+  	      Table = '1tKaKlXL7xJthIR5_jpcLQQ6AwxhNdE13uWOP_fA';
+
+		  var query = "SELECT Station, Traffic, Latitude, Longitude FROM " + Table;
+  	      var queryurl = encodeURI(queryUrlHead + query + queryUrlTail);
+
+  	      var jqxhr = $.get(queryurl, dataHandler, "jsonp");
+		  
+
+	
+  	  }
+	  
+        google.maps.event.addDomListener(window, 'load', initialize);
+      </script>
+	
+  </body>
+</html>
